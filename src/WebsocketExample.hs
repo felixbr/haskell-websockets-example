@@ -36,14 +36,14 @@ application state pending = do
 
     -- join chat
     let newClient = (username, conn)
-    liftIO $ modifyMVar_ state $  \s -> do
+    liftIO $ modifyMVar_ state $  \s ->
         return $ addClient newClient s
 
     -- continue broadcasting subsequent messages
     talk conn username state
 
 talk :: WS.Connection -> Text -> MVar ServerState -> IO ()
-talk conn username state = forever $ do
+talk conn _ state = forever $ do
     msg <- WS.receiveData conn
     liftIO $ readMVar state >>= broadcast msg
 

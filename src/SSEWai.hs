@@ -26,4 +26,4 @@ simulateEvents chan = forever $ do
                     (Just $ stringUtf8 "id")
                     [stringUtf8 "bla"]
     putStrLn "sending event"
-    writeChan chan $ event
+    writeChan chan event
