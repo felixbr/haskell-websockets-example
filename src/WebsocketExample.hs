@@ -23,10 +23,11 @@ newServerState = []
 addClient :: Client -> ServerState -> ServerState
 addClient client clients = client : clients
 
-broadcast :: Text -> ServerState -> IO ()
-broadcast msg clients = do
+broadcast :: Text -> Text -> ServerState -> IO ()
+broadcast username msg clients = do
     T.putStrLn msg
-    forM_ clients $ \(_, conn) -> WS.sendTextData conn msg
+    let payload = T.concat [username, ": ", msg]
+    forM_ clients $ \(_, conn) -> WS.sendTextData conn payload
 
 application :: MVar ServerState -> WS.PendingConnection -> IO ()
 application state pending = do
@@ -43,9 +44,9 @@ application state pending = do
     talk conn username state
 
 talk :: WS.Connection -> Text -> MVar ServerState -> IO ()
-talk conn _ state = forever $ do
+talk conn username state = forever $ do
     msg <- WS.receiveData conn
-    liftIO $ readMVar state >>= broadcast msg
+    liftIO $ readMVar state >>= broadcast username msg
 
 main :: IO ()
 main = do

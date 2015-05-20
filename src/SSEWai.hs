@@ -19,11 +19,13 @@ main = do
     run 8080 $ simpleCors $ eventSourceAppChan channel
 
 simulateEvents :: Chan ServerEvent -> IO ()
-simulateEvents chan = forever $ do
-    threadDelay (10^6 * 2)
-    let event = ServerEvent
-                    (Just $ stringUtf8 "message")
-                    (Just $ stringUtf8 "id")
-                    [stringUtf8 "bla"]
-    putStrLn "sending event"
-    writeChan chan event
+simulateEvents chan = go 0 where
+    go n = do
+        threadDelay (10^6 * 2)
+        let event = ServerEvent
+                        (Just $ stringUtf8 "message")
+                        (Just $ stringUtf8 "id")
+                        [stringUtf8 "bla", stringUtf8 $ show n]
+        putStrLn "sending event"
+        writeChan chan event
+        go (n + 1)
